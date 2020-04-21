@@ -3,28 +3,50 @@ import 'package:flutter/material.dart';
 import '../widgets/meal_item.dart';
 import '../dummy_data.dart';
 
-class CategoryMealsScreen extends StatelessWidget {
+class CategoryMealsScreen extends StatefulWidget {
   static const String name = "/category-meals";
-  // final String categoryId;
-  // final String categoryTitle;
 
-  // CategoryMealsScreen({this.categoryId, this.categoryTitle});
+  @override
+  _CategoryMealsScreenState createState() => _CategoryMealsScreenState();
+}
+
+class _CategoryMealsScreenState extends State<CategoryMealsScreen> {
+  List<String> exceptionalItems = [];
+  String categoryTitle;
+  String categoryId;
+  List meals;
+  bool haveFetchedData = false;
+
+  @override
+  void didChangeDependencies() {
+    if (!haveFetchedData) {
+      final passedArgs = (ModalRoute.of(context).settings.arguments as Map);
+      categoryTitle = passedArgs["title"];
+      categoryId = passedArgs["id"];
+      meals = DUMMY_MEALS.where((item) {
+        return item.categories.contains(categoryId);
+      }).toList();
+      haveFetchedData = true;
+    }
+    super.didChangeDependencies();
+  }
+
+  void removeItem(String id) {
+    setState(() {
+      meals.removeWhere((item) => item.id == id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final passedArgs = (ModalRoute.of(context).settings.arguments as Map);
-    final categoryTitle = passedArgs["title"];
-    final categoryId = passedArgs["id"];
-    final meals = DUMMY_MEALS.where((item) {
-      return item.categories.contains(categoryId);
-    }).toList();
+    // print(meals);
     return Scaffold(
       appBar: AppBar(
         title: Text(categoryTitle),
       ),
       body: ListView.builder(
         itemBuilder: (ctx, i) {
-          return MealItem(meal: meals[i]);
+          return MealItem(removeItem, meal: meals[i]);
         },
         itemCount: meals.length,
       ),
