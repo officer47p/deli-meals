@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/meal_item.dart';
-import '../dummy_data.dart';
+import '../models/meal.dart';
 
 class CategoryMealsScreen extends StatefulWidget {
   static const String name = "/category-meals";
+  final List<Meal> availableMeals;
+
+  CategoryMealsScreen(this.availableMeals);
 
   @override
   _CategoryMealsScreenState createState() => _CategoryMealsScreenState();
@@ -18,12 +21,18 @@ class _CategoryMealsScreenState extends State<CategoryMealsScreen> {
   bool haveFetchedData = false;
 
   @override
+  void initState() {
+    // meals = widget.availableMeals;
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     if (!haveFetchedData) {
       final passedArgs = (ModalRoute.of(context).settings.arguments as Map);
       categoryTitle = passedArgs["title"];
       categoryId = passedArgs["id"];
-      meals = DUMMY_MEALS.where((item) {
+      meals = widget.availableMeals.where((item) {
         return item.categories.contains(categoryId);
       }).toList();
       haveFetchedData = true;
